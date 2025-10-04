@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Tools Downloader</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    /* GLOBAL */
+    body,html {
+      margin:0; padding:0;
+      font-family: Arial, sans-serif;
+      background:#000;
+      color:#fff;
+      overflow:hidden;
+    }
+
+    /* STARFIELD CANVAS */
+    #starfield {
+      position:fixed;
+      top:0; left:0;
+      width:100%; height:100%;
+      z-index:-1;
+      background:#000;
+    }
+
+    /* WELCOME PAGE */
+    #welcome {
+      position:fixed; top:0; left:0;
+      width:100%; height:100%;
+      background:rgba(0,0,0,0.9);
+      display:flex; flex-direction:column;
+      justify-content:center; align-items:center;
+      z-index:10;
+      text-align:center;
+    }
+    #welcome img {
+      width:120px; height:120px;
+      border-radius:50%;
+      border:3px solid red;
+      box-shadow:0 0 20px red;
+      margin-bottom:20px;
+    }
+    .typing {
+      font-size:20px;
+      color:#ff1c1c;
+      text-shadow:0 0 10px #ff1c1c,0 0 20px #ff1c1c;
+      white-space:nowrap;
+      border-right:2px solid #ff1c1c;
+      overflow:hidden;
+      width:0;
+      animation:typing 4s steps(40,end) forwards, blink 0.7s step-end infinite;
+    }
+    @keyframes typing { from { width:0; } to { width:100%; } }
+    @keyframes blink { 50% { border-color:transparent; } }
+    #startBtn {
+      display:none;
+      margin-top:30px;
+      padding:12px 25px;
+      font-size:18px;
+      color:#fff;
+      background:#ff1c1c;
+      border:none;
+      border-radius:25px;
+      cursor:pointer;
+      text-transform:uppercase;
+      box-shadow:0 0 15px #ff1c1c, 0 0 30px #ff1c1c;
+      transition:0.3s;
+    }
+    #startBtn:hover {
+      background:#ff3b3b;
+      box-shadow:0 0 25px #ff3b3b, 0 0 50px #ff3b3b;
+    }
+
+    /* LOADING SCREEN */
+    #loadingScreen {
+      position:fixed; top:0; left:0;
+      width:100%; height:100%;
+      display:none;
+      justify-content:center; align-items:center;
+      flex-direction:column;
+      background:rgba(0,0,0,0.95);
+      z-index:20;
+    }
+    .loader {
+      border:8px solid #222;
+      border-top:8px solid #ff1c1c;
+      border-radius:50%;
+      width:70px; height:70px;
+      animation:spin 1s linear infinite;
+      box-shadow:0 0 20px #ff1c1c;
+      margin-bottom:20px;
+    }
+    @keyframes spin {
+      0% { transform:rotate(0deg); }
+      100% { transform:rotate(360deg); }
+    }
+    .loader-text {
+      font-size:18px;
+      color:#ff1c1c;
+      text-shadow:0 0 10px #ff1c1c;
+      letter-spacing:2px;
+      animation:pulse 1.5s infinite;
+    }
+    @keyframes pulse {
+      0%,100% { opacity:1; }
+      50% { opacity:0.4; }
+    }
+
+    /* MAIN PAGE */
+    #main { display:none; padding:20px; overflow-y:auto; height:100vh; }
+
+    header { text-align:center; margin-bottom:20px; }
+    header img {
+      width:100px; height:100px;
+      border-radius:50%; border:3px solid red;
+      box-shadow:0 0 20px red;
+    }
+    header h1 {
+      margin:10px 0; font-size:24px;
+      color:#ff1c1c; text-shadow:0 0 10px #ff1c1c;
+    }
+    header p { font-size:14px; color:#ccc; }
+
+    .marquee { width:100%; overflow:hidden; white-space:nowrap; margin:15px 0; }
+    .marquee span {
+      display:inline-block; padding-left:100%;
+      animation:marquee 15s linear infinite;
+      color:#ff1c1c; text-shadow:0 0 10px #ff1c1c;
+    }
+    @keyframes marquee { 0%{ transform:translateX(0);} 100%{ transform:translateX(-100%);} }
+
+    .search-box { display:flex; justify-content:center; margin:20px 0; }
+    .search-box input {
+      padding:10px; width:60%; max-width:300px;
+      border-radius:20px; border:none;
+      outline:none; text-align:center;
+      box-shadow:0 0 10px red;
+    }
+
+    .tools {
+      display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+      gap:15px;
+    }
+    .card {
+      background:#111; padding:15px; border-radius:15px;
+      box-shadow:0 0 10px #ff1c1c;
+      text-align:center; transition:0.3s;
+    }
+    .card:hover { transform:translateY(-5px); box-shadow:0 0 20px #ff3b3b; }
+    .card h3 { color:#ff1c1c; margin-bottom:10px; }
+    .card p { font-size:14px; color:#ccc; margin-bottom:10px; }
+    .card a {
+      display:inline-block; padding:8px 15px;
+      background:#ff1c1c; color:#fff; text-decoration:none;
+      border-radius:20px; box-shadow:0 0 10px #ff1c1c;
+      transition:0.3s;
+    }
+    .card a:hover { background:#ff3b3b; box-shadow:0 0 20px #ff3b3b; }
+
+    footer { text-align:center; margin-top:30px; font-size:13px; color:#777; }
+  </style>
+</head>
+<body>
+
+<canvas id="starfield"></canvas>
+
+<!-- WELCOME -->
+<div id="welcome">
+  <img src="https://files.catbox.moe/li8fx3.jpeg" alt="Profile">
+  <div class="typing">WELCOME TO TOOLS DOWNLOADER</div>
+  <div class="typing">BERBAGAI APLIKASI</div>
+  <div class="typing">MADE IN ZAKZ</div>
+  <button id="startBtn" onclick="showLoading()">Start</button>
+</div>
+
+<!-- LOADING -->
+<div id="loadingScreen">
+  <div class="loader"></div>
+  <div class="loader-text">Loading...</div>
+</div>
+
+<!-- AUDIO -->
+<audio id="bgMusic" loop>
+  <source src="link-mp3.mp3" type="audio/mpeg">
+</audio>
+
+<!-- MAIN -->
+<div id="main">
+  <header>
+    <img src="https://files.catbox.moe/li8fx3.jpeg" alt="Profile">
+    <h1>Reseller Gaming Programer</h1>
+    <p>Website ini menyediakan berbagai tools downloader gratis tanpa iklan</p>
+  </header>
+
+  <!-- Marquee -->
+  <div class="marquee">
+    <span>Selamat datang di alat bantuan gratis yang dibuat oleh ZAKZ untuk mempermudah anda dan website ini tanpa iklan. Jangan lupa support developer website ini.</span>
+  </div>
+
+  <!-- Search -->
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="Cari tools...">
+  </div>
+
+  <!-- Tools -->
+  <div class="tools" id="toolsList">
+    <div class="card">
+      <h3>TikTok Downloader</h3>
+      <p>Download video TikTok tanpa watermark</p>
+      <a href="/TIKTOK/">Mulai</a>
+    </div>
+    <div class="card">
+      <h3>Instagram Downloader</h3>
+      <p>Simpan foto & video Instagram</p>
+      <a href="/INSTAGRAM/">Mulai</a>
+    </div>
+    <div class="card">
+      <h3>YouTube MP3/MP4</h3>
+      <p>Download audio atau video dari YouTube</p>
+      <a href="/YOUTUBE/">Mulai</a>
+    </div>
+    <div class="card">
+      <h3>DEVELOPER ZAKZ</h3>
+      <p>jangan lupa support ZAKZ</p>
+      <a href="/YTMP3/">Coming Soon</a>
+    </div>
+  </div>
+
+  <footer>
+    &copy; 2025 ZAKZ
+  </footer>
+</div>
+
+<script>
+  // delay tampilkan tombol START setelah typing selesai
+  setTimeout(()=>{ document.getElementById("startBtn").style.display="inline-block"; }, 4500);
+
+  function showLoading() {
+    document.getElementById("welcome").style.display="none";
+    document.getElementById("loadingScreen").style.display="flex";
+
+    // simulasi loading 3 detik
+    setTimeout(()=>{
+      document.getElementById("loadingScreen").style.display="none";
+      document.getElementById("main").style.display="block";
+      document.getElementById("bgMusic").play();
+    },3000);
+  }
+
+  // search realtime
+  const input = document.getElementById("searchInput");
+  input.addEventListener("keyup", ()=>{
+    let filter = input.value.toLowerCase();
+    let cards = document.querySelectorAll("#toolsList .card");
+    cards.forEach(c=>{
+      let t = c.querySelector("h3").textContent.toLowerCase();
+      let d = c.querySelector("p").textContent.toLowerCase();
+      c.style.display = (t.includes(filter)||d.includes(filter)) ? "block" : "none";
+    });
+  });
+
+  // STARFIELD ANIMATION
+  const canvas = document.getElementById("starfield");
+  const ctx = canvas.getContext("2d");
+  let stars = [];
+  let w,h;
+  function resize(){
+    w=canvas.width=window.innerWidth;
+    h=canvas.height=window.innerHeight;
+    stars = [];
+    for(let i=0;i<150;i++){
+      stars.push({x:Math.random()*w,y:Math.random()*h,z:Math.random()*w});
+    }
+  }
+  window.onresize=resize;
+  resize();
+
+  function animate(){
+    ctx.fillStyle="#000";
+    ctx.fillRect(0,0,w,h);
+    for(let i=0;i<stars.length;i++){
+      let s = stars[i];
+      s.z-=2;
+      if(s.z<=0){ s.x=Math.random()*w; s.y=Math.random()*h; s.z=w; }
+      let k=128.0/s.z;
+      let px=s.x*k+w/2;
+      let py=s.y*k+h/2;
+      if(px>=0 && px<=w && py>=0 && py<=h){
+        let size=(1-s.z/w)*3;
+        ctx.fillStyle="rgba(255,30,30,1)";
+        ctx.beginPath();
+        ctx.arc(px,py,size,0,Math.PI*2);
+        ctx.fill();
+      }
+    }
+    requestAnimationFrame(animate);
+  }
+  animate();
+</script>
+
+</body>
+</html>
